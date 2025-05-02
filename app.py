@@ -8,8 +8,8 @@ import random
 xgb_model = joblib.load('combined_xgb_model.pkl')  # Ensure this path is correct
 
 # Load data for input options
-appliance_df = pd.read_csv('synthetic_household_appliances_data.csv')
-emission_df = pd.read_csv('REM_Factor.csv')
+appliance_df = pd.read_csv('10000_balanced_household_dataset.csv')
+emission_df = pd.read_csv('updated_REM_dataset_with_thresholds (1).csv')
 
 # Define options from the dataset
 categories = appliance_df['Category'].unique().tolist()
@@ -64,49 +64,66 @@ for i in range(num_appliances):
         'Carbon Emission per Month': carbon_emission_per_month
     })
 
-# Function to classify based on number of appliances
-def classify_by_appliances(num_appliances):
-    if num_appliances >= 10:
-        return 'high', [
-            "High emissions detected! Consider reducing the number of appliances, switching to energy-efficient models, or optimizing usage.",
-            "Your household has a high carbon footprint. Try using fewer appliances or choosing more energy-efficient options.",
-            "High emissions detected! Consider smart home systems to optimize usage and energy consumption.",
-            "You have a lot of appliances. Try reducing usage or opting for better energy ratings to lower emissions.",
-            "Your emission levels are high. Think about upgrading to eco-friendly, energy-efficient appliances."
-        ]
-    elif num_appliances >= 5:
-        return 'moderate', [
-            "Your emissions are moderate. Consider reducing appliance usage or opting for energy-efficient options.",
-            "You're doing well, but you can still lower emissions by reducing appliance usage or switching to energy-efficient models.",
-            "Moderate emissions detected. Consider upgrading to energy-efficient appliances to bring emissions down.",
-            "Your household's emissions are moderate. Switching to eco-friendly appliances could help reduce the carbon footprint.",
-            "Reduce the usage of appliances or look into renewable energy sources for better results."
-        ]
-    else:
-        return 'low', [
+# Process appliance data for prediction
+if st.button("Calculate Total Emission and Classify"):
+    # Convert list of appliances to DataFrame
+    appliance_df = pd.DataFrame(appliance_data_list)
+
+    # Drop non-numeric columns (like Household_ID, District Name, Sub-District)
+    appliance_df = appliance_df.drop(['Household_ID', 'District Name', 'Sub-District'], axis=1)
+
+    # One-Hot Encode Category, Appliance Type, and Energy Efficiency Rating (same as training)
+    appliance_df = pd.get_dummies(appliance_df, columns=['Category', 'Appliance Type', 'Energy Efficiency Rating'], drop_first=True)
+
+    # Ensure the input data has the same number of features as the training data
+    expected_columns = xgb_model.get_booster().feature_names  # Get feature names from the model
+    appliance_df = appliance_df.reindex(columns=expected_columns, fill_value=0)
+
+    # Now you can make predictions
+    predictions = xgb_model.predict(appliance_df)
+
+    # Map predictions to labels
+    emission_mapping = {0: 'low', 1: 'moderate', 2: 'high'}
+    emission_category = emission_mapping[predictions[0]]  # Assuming one prediction
+
+    # Display results
+    st.write(f"### Total Carbon Emission: {sum(appliance_df['Carbon Emission per Month']):.2f} tons CO₂/month")
+    st.write(f"### Emission Category: {emission_category}")
+
+    # Provide recommendations
+def get_recommendation(emission_category):
+    # Define recommendations
+    recommendations = {
+        'low': [
             "Great! Your household has low emissions. Keep it up!",
             "Low emissions detected! You're doing an excellent job in minimizing your carbon footprint.",
             "Your emissions are low. Continue using energy-efficient appliances and maintaining low usage.",
             "You're ahead in the sustainability race with low emissions. Keep up the great work!",
             "Low carbon emissions! Consider installing smart home systems to optimize energy use even further."
+        ],
+        'moderate': [
+            "Your emissions are moderate. Consider reducing appliance usage or opting for energy-efficient options.",
+            "You're doing well, but you can still lower emissions by reducing appliance usage or switching to energy-efficient models.",
+            "Moderate emissions detected. Consider upgrading to energy-efficient appliances to bring emissions down.",
+            "Your household's emissions are moderate. Switching to eco-friendly appliances could help reduce the carbon footprint.",
+            "Reduce the usage of appliances or look into renewable energy sources for better results."
+        ],
+        'high': [
+            "Your emissions are high! Consider using energy-efficient appliances and reducing overall energy consumption.",
+            "High emissions detected. Switching to LED lighting and reducing air conditioning use can help lower it.",
+            "Your household has a high carbon footprint. Opt for renewable energy sources or upgrade to energy-efficient appliances.",
+            "Try reducing unnecessary electricity usage, using smart home systems, and switching to sustainable power sources.",
+            "High emissions recorded! Consider scheduling appliance usage to off-peak hours and adopting green energy alternatives."
         ]
+    }
 
-# Process appliance data for prediction when user clicks "Calculate Total Emission and Classify"
-if st.button("Calculate Total Emission and Classify"):
-    # Classify emission based on number of appliances
-    emission_category, recommendation_list = classify_by_appliances(num_appliances)
+    # Select a random recommendation based on the emission category
+    if emission_category in recommendations:
+        selected_recommendation = random.choice(recommendations[emission_category])
+    else:
+        selected_recommendation = "Emission category not recognized."
 
-    # Calculate total carbon emission for the household
-    total_emission = sum([appliance['Carbon Emission per Month'] for appliance in appliance_data_list])
+    return emission_category, selected_recommendation
 
-    # Select a random recommendation from the list based on the emission category
-    random_recommendation = random.choice(recommendation_list)
-
-    # Display the total emission and classification result
-    st.write(f"### Total Carbon Emission: {total_emission:.2f} tons CO₂/month")
-    st.write(f"### Emission Category: {emission_category}")
-
-    # Provide the recommendation based on appliance classification
-    st.write(f"### Recommendation: {random_recommendation}")
-
-  
+# Display result in Streamlit
+st.write(f"### Recommendation: {recommendation}")
