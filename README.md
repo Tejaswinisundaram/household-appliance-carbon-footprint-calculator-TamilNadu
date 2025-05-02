@@ -1,5 +1,6 @@
 **Household Appliance Carbon Footprint Calculator – Tamil Nadu**
-This project is a machine learning–powered web application that estimates and classifies household carbon emissions based on appliance usage and **Regional Emission (REM)** factors for different districts in **Tamil Nadu**. The system also offers **personalized recommendations** to reduce your carbon footprint, using statistical models and XGBoost regression.
+
+  This project is a machine learning–powered web application that estimates and classifies household carbon emissions based on appliance usage and **Regional Emission (REM)** factors for different districts in **Tamil Nadu**. The system also offers **personalized recommendations** to reduce your carbon footprint, using statistical models and XGBoost regression.
 
 **🌱 Project Overview**
 
