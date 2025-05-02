@@ -72,8 +72,8 @@ streamlit run app.py
 .
 ├── app.py                          # Streamlit web app
 ├── combined_xgb_model.pkl         # Trained ML model
-├── synthetic_household_appliances_data.csv  # Appliance data
-├── REM_Factor.csv                 # Regional emission data
+├── 10000_balanced_household_dataset.csv  # Appliance data
+├── updated_REM_dataset_with_thresholds (1) # Regional emission data
 ├── requirements.txt               # Python dependencies
 └── README.md                      # Project description
 ```
