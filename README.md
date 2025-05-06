@@ -60,7 +60,7 @@ streamlit run app.py
 **📊 Sample Input Fields**
 
 * **Appliance Type**: e.g., Air Conditioner, Washing Machine
-* **Efficiency Rating**: A, B, C...
+* **Efficiency Rating**: 1,2,...5
 * **Energy Consumption**: e.g., 1.5 kWh
 * **Usage Hours**: e.g., 100 hours/month
 * **Location**: Select district and sub-district
