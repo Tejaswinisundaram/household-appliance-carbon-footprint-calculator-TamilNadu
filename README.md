@@ -19,10 +19,9 @@
 5. Displays **tailored recommendations** to reduce emissions.
 6. Machine learning model: **XGBoost Regression** trained on synthetic appliance datasets and REM factors.
 
-**🚀 How to Run the App Locally
-**
-**1. Prerequisites:
-**
+**🚀 How to Run the App Locally**
+
+**1. Prerequisites:**
   1.1. Python 3.8+
   1.2. Required packages: `streamlit`, `pandas`, `numpy`, `joblib`
 
